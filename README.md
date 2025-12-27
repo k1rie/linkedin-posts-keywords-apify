@@ -1,12 +1,13 @@
 # LinkedIn Posts Extractor por Keywords con Apify
 
-Sistema de extracción de posts de LinkedIn usando keywords con Apify, integrado con ClickUp para obtener keywords y guardar posts. **Solo busca posts de México.**
+Sistema de extracción de posts de LinkedIn usando keywords con Apify, integrado con ClickUp para obtener keywords y HubSpot para crear deals. **Solo busca posts de México.**
 
 ## Características
 
 - 🔍 Búsqueda de posts de LinkedIn usando keywords con Apify Actor
 - 🇲🇽 Filtro de ubicación: Solo posts de México
-- 🔄 Integración con ClickUp (obtener keywords desde lista y guardar posts)
+- 🔄 Integración con ClickUp (obtener keywords desde lista)
+- 💼 Integración con HubSpot (crear deals para cada post encontrado)
 - ✅ Detección de duplicados
 - 📊 Rate limiting configurable (máximo de keywords por día)
 - ⏰ Scheduler configurable (ejecución automática periódica)
@@ -31,10 +32,14 @@ Crea un archivo `.env` en la carpeta `backend` basándote en `.env.example`:
 APIFY_API_TOKEN=tu_token_de_apify
 APIFY_ACTOR_ID=buIWk2uOUzTmcLsuB
 
-# ClickUp Configuration
+# ClickUp Configuration (solo para obtener keywords)
 CLICKUP_API_TOKEN=tu_token_de_clickup
 CLICKUP_KEYWORDS_LIST_ID=901708915302
-CLICKUP_POSTS_LIST_ID=901708915350
+
+# HubSpot Configuration (para crear deals)
+HUBSPOT_TOKEN=tu_token_de_hubspot
+HUBSPOT_DEAL_STAGE=appointmentscheduled
+HUBSPOT_PIPELINE=default
 
 # Server Configuration
 PORT=3004
@@ -69,10 +74,35 @@ LOG_LEVEL=INFO
 - `APIFY_API_TOKEN`: Token de API de Apify (requerido)
 - `APIFY_ACTOR_ID`: ID del Actor de Apify (por defecto: `buIWk2uOUzTmcLsuB`)
 
-#### ClickUp
+#### ClickUp (solo para obtener keywords)
 - `CLICKUP_API_TOKEN`: Token de API de ClickUp (requerido)
 - `CLICKUP_KEYWORDS_LIST_ID`: ID de la lista de ClickUp donde están las keywords (por defecto: `901708915302`)
-- `CLICKUP_POSTS_LIST_ID`: ID de la lista de ClickUp donde se guardarán los posts (por defecto: `901708915350`)
+
+#### HubSpot (para crear deals)
+- `HUBSPOT_TOKEN`: Token de API de HubSpot (requerido)
+- `HUBSPOT_PIPELINE_ID`: ID numérico del pipeline (opcional, por defecto: `811215668` - Pipeline "Prospección")
+- `HUBSPOT_DEAL_STAGE_ID`: ID numérico del stage (opcional, si no se especifica usa el primer stage del pipeline configurado)
+  
+  **Ejemplo de configuración:**
+  ```env
+  HUBSPOT_PIPELINE_ID=811215668
+  HUBSPOT_DEAL_STAGE_ID=1194313030  # "Hipótesis OK" - primer stage del pipeline Prospección
+  ```
+  
+  **Stages disponibles en pipeline "Prospección" (811215668):**
+  - `1194313030` - Hipótesis OK
+  - `1195189302` - Apollo OK
+  - `1195771750` - Invitando LI
+  - `1194326274` - Email 1 OK
+  - `1194326275` - Evento LI Creado
+  - `1194326276` - Email 2 OK
+  - `1194326277` - WhatsApp OK
+  - `1194962947` - Llamada OK
+  - `1194962948` - Email 3 OK
+  - `1195344731` - Invitar en Zoom
+  - `1195978305` - Descartado
+  
+  Para ver todos los stages disponibles, ejecuta: `npm run check-pipeline`
 
 #### Rate Limiting
 - `MAX_KEYWORDS_PER_DAY`: Máximo número de keywords a procesar por día (por defecto: `10`)
@@ -176,9 +206,25 @@ Obtener estadísticas de rate limit y estado del scheduler.
 
 1. **Obtener keywords desde ClickUp**: El sistema obtiene keywords desde una lista de ClickUp
 2. **Verificar rate limit**: Se verifica si se puede procesar más keywords hoy
-3. **Buscar posts con Apify**: Se usa el Actor de Apify para buscar posts con cada keyword
-4. **Crear tareas en ClickUp**: Para cada post encontrado, se crea una tarea en ClickUp (si no es duplicado)
+3. **Buscar posts con Apify**: Se usa el Actor de Apify para buscar posts con cada keyword (solo de México)
+4. **Crear deals en HubSpot**: Para cada post encontrado, se crea un deal en HubSpot (si no es duplicado)
 5. **Actualizar rate limit**: Se incrementa el contador de keywords procesadas
+
+### Información guardada en cada Deal de HubSpot
+
+Cada deal incluye:
+- **Nombre del deal**: `{Autor} - Post LinkedIn ({keyword})`
+- **Descripción**: Contiene toda la información del post:
+  - Keyword usada para encontrar el post
+  - Autor/Perfil del post
+  - URL del perfil de LinkedIn
+  - URL del post
+  - Contenido del post (primeros 1000 caracteres)
+  - Fecha del post (si está disponible)
+- **Pipeline y Stage**: Se obtienen automáticamente del primer pipeline disponible (o el configurado en `.env`)
+- **Monto**: 0 MXN (sin monto inicial)
+
+**Nota**: Toda la información se guarda en la descripción del deal. Las propiedades personalizadas de LinkedIn no se crean automáticamente, pero toda la información está disponible en la descripción.
 
 ## Estructura del Proyecto
 
@@ -220,4 +266,5 @@ linkedin-posts-keywords-apify/
 
 ISC
 
+# linkedin-posts-keywords-apify
 # linkedin-posts-keywords-apify

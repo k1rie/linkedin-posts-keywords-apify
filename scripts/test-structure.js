@@ -1,6 +1,7 @@
 require('dotenv').config();
 const clickupService = require('../services/clickupService');
 const apifyService = require('../services/apifyService');
+const hubspotService = require('../services/hubspotService');
 const loggerService = require('../services/loggerService');
 
 /**
@@ -65,25 +66,25 @@ const testStructure = async () => {
       }
     }
 
-    // 3. Probar guardado en ClickUp (solo el primer post)
+    // 3. Probar guardado en HubSpot (solo el primer post)
     if (apifyResults.posts.length > 0) {
       const firstPost = apifyResults.posts[0];
       
-      loggerService.info('\n=== PRUEBA DE GUARDADO EN CLICKUP ===');
+      loggerService.info('\n=== PRUEBA DE GUARDADO EN HUBSPOT ===');
       loggerService.info(`Keyword: ${testKeyword.keyword}`);
       loggerService.info(`URL del post: ${firstPost.url}`);
       loggerService.info(`Author: ${firstPost.author || 'N/A'}`);
       loggerService.info(`Profile URL: ${firstPost.profileUrl || 'N/A'}`);
       
-      // Intentar guardar en ClickUp
-      loggerService.info('\n→ Guardando en ClickUp...');
-      const clickupResult = await clickupService.savePostToClickUp(firstPost, testKeyword.keyword);
+      // Intentar guardar en HubSpot
+      loggerService.info('\n→ Guardando en HubSpot...');
+      const hubspotResult = await hubspotService.createDealForPost(firstPost, testKeyword.keyword);
       
-      if (clickupResult) {
-        loggerService.success(`✓ Tarea creada en ClickUp: ${clickupResult.id}`);
-        loggerService.info(`Resultado:`, JSON.stringify(clickupResult, null, 2));
+      if (hubspotResult) {
+        loggerService.success(`✓ Deal creado en HubSpot: ${hubspotResult.id}`);
+        loggerService.info(`Resultado:`, JSON.stringify(hubspotResult, null, 2));
       } else {
-        loggerService.warn('No se pudo crear la tarea en ClickUp');
+        loggerService.warn('No se pudo crear el deal en HubSpot');
       }
     }
 

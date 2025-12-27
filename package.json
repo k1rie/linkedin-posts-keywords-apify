@@ -11,7 +11,10 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "scrape": "node scripts/scrape.js",
-    "test-structure": "node scripts/test-structure.js"
+    "test-structure": "node scripts/test-structure.js",
+    "test-hubspot": "node scripts/test-hubspot-deal.js",
+    "check-pipeline": "node scripts/check-pipeline-stage.js",
+    "get-deal": "node scripts/get-deal-info.js"
   },
   "keywords": [
     "linkedin",

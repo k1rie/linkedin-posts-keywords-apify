@@ -1,5 +1,6 @@
 const apifyService = require('../services/apifyService');
 const clickupService = require('../services/clickupService');
+const hubspotService = require('../services/hubspotService');
 const rateLimitService = require('../services/rateLimitService');
 const loggerService = require('../services/loggerService');
 
@@ -66,20 +67,20 @@ const runScheduledScrape = async () => {
 
         loggerService.info(`  ✓ Apify retornó ${apifyResult.posts.length} post(s)`);
 
-        // 2. Guardar cada post en ClickUp secuencialmente
+        // 2. Guardar cada post en HubSpot secuencialmente
         let postsSaved = 0;
         let postsDuplicated = 0;
         let postsFailed = 0;
 
         for (const post of apifyResult.posts) {
           try {
-            loggerService.info(`  → Guardando post en ClickUp: ${post.url.substring(0, 50)}...`);
-            const clickupResult = await clickupService.savePostToClickUp(post, keyword);
+            loggerService.info(`  → Guardando post en HubSpot: ${post.url.substring(0, 50)}...`);
+            const hubspotResult = await hubspotService.createDealForPost(post, keyword);
 
-            if (clickupResult && !clickupResult.duplicate) {
+            if (hubspotResult && !hubspotResult.duplicate) {
               postsSaved++;
-              loggerService.success(`  ✓ Post guardado en ClickUp (Task ID: ${clickupResult.id})`);
-            } else if (clickupResult && clickupResult.duplicate) {
+              loggerService.success(`  ✓ Post guardado en HubSpot (Deal ID: ${hubspotResult.id})`);
+            } else if (hubspotResult && hubspotResult.duplicate) {
               postsDuplicated++;
               loggerService.warn(`  ⏭️  Post duplicado, saltado`);
             }
@@ -89,13 +90,13 @@ const runScheduledScrape = async () => {
               postUrl: post.url,
               author: post.author,
               profileUrl: post.profileUrl,
-              success: clickupResult && !clickupResult.duplicate,
-              clickupTaskId: clickupResult?.id || null,
-              duplicate: clickupResult?.duplicate || false
+              success: hubspotResult && !hubspotResult.duplicate,
+              hubspotDealId: hubspotResult?.id || null,
+              duplicate: hubspotResult?.duplicate || false
             });
           } catch (error) {
             postsFailed++;
-            loggerService.error(`  ✗ Error guardando post en ClickUp: ${error.message}`);
+            loggerService.error(`  ✗ Error guardando post en HubSpot: ${error.message}`);
             results.push({
               keyword: keyword,
               postUrl: post.url,
@@ -214,42 +215,42 @@ const searchPosts = async (req, res) => {
     // Buscar posts usando Apify
     const apifyResults = await apifyService.searchPostsByKeywords(keywordsToProcess);
 
-    // Procesar resultados y crear tareas en ClickUp
+    // Procesar resultados y crear deals en HubSpot
     const results = [];
     let keywordsProcessed = 0;
 
-    for (const post of apifyResults.posts) {
-      const keyword = post.keyword || keywordsToProcess[0];
-      
-      try {
-        loggerService.info(`  → Guardando post en ClickUp: ${post.url.substring(0, 50)}...`);
-        const clickupResult = await clickupService.savePostToClickUp(post, keyword);
+      for (const post of apifyResults.posts) {
+        const keyword = post.keyword || keywordsToProcess[0];
+        
+        try {
+          loggerService.info(`  → Guardando post en HubSpot: ${post.url.substring(0, 50)}...`);
+          const hubspotResult = await hubspotService.createDealForPost(post, keyword);
 
-        results.push({
-          keyword: keyword,
-          postUrl: post.url,
-          author: post.author,
-          profileUrl: post.profileUrl,
-          success: clickupResult && !clickupResult.duplicate,
-          clickupTaskId: clickupResult?.id || null,
-          duplicate: clickupResult?.duplicate || false
-        });
+          results.push({
+            keyword: keyword,
+            postUrl: post.url,
+            author: post.author,
+            profileUrl: post.profileUrl,
+            success: hubspotResult && !hubspotResult.duplicate,
+            hubspotDealId: hubspotResult?.id || null,
+            duplicate: hubspotResult?.duplicate || false
+          });
 
-        if (clickupResult && !clickupResult.duplicate) {
-          loggerService.success(`  ✓ Post guardado en ClickUp (Task ID: ${clickupResult.id})`);
-        } else if (clickupResult && clickupResult.duplicate) {
-          loggerService.warn(`  ⏭️  Post duplicado, saltado`);
+          if (hubspotResult && !hubspotResult.duplicate) {
+            loggerService.success(`  ✓ Post guardado en HubSpot (Deal ID: ${hubspotResult.id})`);
+          } else if (hubspotResult && hubspotResult.duplicate) {
+            loggerService.warn(`  ⏭️  Post duplicado, saltado`);
+          }
+        } catch (error) {
+          loggerService.error(`  ✗ Error guardando post en HubSpot: ${error.message}`);
+          results.push({
+            keyword: keyword,
+            postUrl: post.url,
+            success: false,
+            error: error.message
+          });
         }
-      } catch (error) {
-        loggerService.error(`  ✗ Error guardando post en ClickUp: ${error.message}`);
-        results.push({
-          keyword: keyword,
-          postUrl: post.url,
-          success: false,
-          error: error.message
-        });
       }
-    }
 
     // Incrementar contador de rate limit
     await rateLimitService.incrementCount(keywordsToProcess.length);
