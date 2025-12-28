@@ -178,7 +178,8 @@ const createDealForPost = async (postData, keyword) => {
       dealname: `${authorName} - Post LinkedIn (${keyword})`,
       description: description,
       amount: '0', // Sin monto inicial
-      deal_currency_code: 'MXN'
+      deal_currency_code: 'MXN',
+      link_original_de_la_noticia: postLink // Guardar el link del post
     };
 
     // Obtener pipeline y stage desde .env o usar valores por defecto

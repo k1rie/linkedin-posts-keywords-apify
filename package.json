@@ -1,7 +1,7 @@
 {
   "name": "linkedin-posts-keywords-apify",
   "version": "1.0.0",
-  "description": "LinkedIn posts extractor by keywords using Apify with ClickUp integration",
+  "description": "LinkedIn posts extractor by keywords using Apify with HubSpot integration",
   "main": "server.js",
   "engines": {
     "node": ">=20.0.0",
@@ -11,16 +11,13 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "scrape": "node scripts/scrape.js",
-    "test-structure": "node scripts/test-structure.js",
-    "test-hubspot": "node scripts/test-hubspot-deal.js",
-    "check-pipeline": "node scripts/check-pipeline-stage.js",
-    "get-deal": "node scripts/get-deal-info.js"
+    "setup-properties": "node scripts/create-hubspot-properties.js"
   },
   "keywords": [
     "linkedin",
     "apify",
     "scraper",
-    "clickup",
+    "hubspot",
     "keywords",
     "posts"
   ],
