@@ -46,6 +46,7 @@ const searchPostsByKeywords = async (keywords) => {
       scrapeReactions: process.env.SCRAPE_REACTIONS === 'true',
       maxReactions: parseInt(process.env.MAX_REACTIONS || '5'),
       scrapeComments: process.env.SCRAPE_COMMENTS === 'true',
+      includeReposts: process.env.INCLUDE_REPOSTS === 'true', // Excluir reposts por defecto
       // Filtrar solo posts de México
       author_location: process.env.AUTHOR_LOCATION || 'Mexico'
     };
