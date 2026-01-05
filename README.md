@@ -60,6 +60,7 @@ START_PAGE=1
 SCRAPE_REACTIONS=false
 MAX_REACTIONS=5
 SCRAPE_COMMENTS=false
+INCLUDE_REPOSTS=false
 
 # Location Filter (solo posts de México)
 AUTHOR_LOCATION=Mexico
@@ -120,6 +121,7 @@ LOG_LEVEL=INFO
 - `SCRAPE_REACTIONS`: Extraer reacciones (por defecto: `false`)
 - `MAX_REACTIONS`: Máximo número de reacciones (por defecto: `5`)
 - `SCRAPE_COMMENTS`: Extraer comentarios (por defecto: `false`)
+- `INCLUDE_REPOSTS`: Incluir reposts (por defecto: `false`)
 - `AUTHOR_LOCATION`: Ubicación del autor para filtrar (por defecto: `Mexico`) - Solo busca posts de México
 
 ## Uso
