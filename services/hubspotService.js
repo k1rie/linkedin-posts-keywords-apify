@@ -179,7 +179,7 @@ const createDealForPost = async (postData, keyword) => {
       description: description,
       amount: '0', // Sin monto inicial
       deal_currency_code: 'MXN',
-      link_original_de_la_noticia: postLink // Guardar el link del post
+      link_original_de_la_noticia: profileUrl // Guardar el link del perfil de LinkedIn
     };
 
     // Log de datos que se van a guardar
@@ -189,7 +189,7 @@ const createDealForPost = async (postData, keyword) => {
     loggerService.info(`Author: ${authorName}`);
     loggerService.info(`Keyword: ${keyword}`);
     loggerService.info(`Post URL: ${postLink}`);
-    loggerService.info(`Profile URL: ${profileUrl}`);
+    loggerService.info(`Profile URL (guardado): ${profileUrl}`);
     loggerService.info('================================');
 
     // Obtener pipeline y stage desde .env o usar valores por defecto
@@ -246,6 +246,7 @@ const createDealForPost = async (postData, keyword) => {
     loggerService.info(`=== DEAL CREADO EXITOSAMENTE ===`);
     loggerService.info(`Deal ID: ${response.data.id}`);
     loggerService.info(`Deal Name: ${dealProperties.dealname}`);
+    loggerService.info(`Profile URL: ${profileUrl}`);
     loggerService.info(`Pipeline: ${dealProperties.pipeline || 'N/A'}`);
     loggerService.info(`Stage: ${dealProperties.dealstage || 'N/A'}`);
     loggerService.info('================================');
