@@ -193,8 +193,8 @@ const createDealForPost = async (postData, keyword) => {
     loggerService.info('================================');
 
     // Obtener pipeline y stage desde .env o usar valores por defecto
-    const envPipelineId = process.env.HUBSPOT_PIPELINE_ID || '811215668'; // Default: Prospección
-    const envStageId = process.env.HUBSPOT_DEAL_STAGE_ID;
+    const envPipelineId = process.env.HUBSPOT_PIPELINE_ID || '654720623'; // Default: proyectos
+    const envStageId = process.env.HUBSPOT_DEAL_STAGE_ID || '1169433784'; // Default: stage para posts keywords
 
     // Si se especifica un stage ID en el env, usarlo directamente
     if (envStageId && /^\d+$/.test(envStageId)) {
