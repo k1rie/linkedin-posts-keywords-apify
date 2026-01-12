@@ -148,14 +148,17 @@ const createDealForPost = async (postData, keyword) => {
 
     // Extraer información del autor/perfil
     let authorName = 'No disponible';
-    let profileUrl = 'No disponible';
-    
+    let profileUrl = postData.profileUrl || 'No disponible'; // Buscar primero en postData.profileUrl
+
     if (postData.author) {
       if (typeof postData.author === 'string') {
         authorName = postData.author;
       } else if (typeof postData.author === 'object' && postData.author !== null) {
-        authorName = postData.author.name || postData.author.authorName || 'No disponible';
-        profileUrl = postData.author.linkedinUrl || postData.author.url || 'No disponible';
+        authorName = postData.author.name || postData.author.authorName || authorName;
+        // Si no tenemos profileUrl aún, buscar en el objeto author
+        if (profileUrl === 'No disponible') {
+          profileUrl = postData.author.linkedinUrl || postData.author.url || 'No disponible';
+        }
       }
     }
 
